@@ -22,17 +22,16 @@ export const imageRouter = createTRPCRouter({
       });
     }),
   likeImage: protectedProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.image.update({
-        where: { id: input.id },
-        data: { likes: { increment: 1 } },
+      return ctx.db.like.create({
+        data: { userId: ctx.session.user.id, id: input.id },
       });
     }),
   dislikeImage: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.image.update({
+      return ctx.db.like.create({
         where: { id: input.id },
         data: { dislikes: { increment: 1 } },
       });

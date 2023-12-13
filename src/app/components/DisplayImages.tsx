@@ -1,15 +1,23 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { DisplayImagesProps, ImageObject } from "./interfaces";
+import { DisplayImagesProps, ImageObject } from "../interfaces";
 import Loading from "./Loading";
 import { api } from "~/trpc/react";
 export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
-
-  const likeMutation = api.image.likeImage.useMutation();
-  const dislikeMutation = api.image.dislikeImage.useMutation();
+  
+  const likeMutation = api.image.likeImage.useMutation({
+    onSuccess: (data) => {
+      updateImages(data);
+    }
+  });
+  const dislikeMutation = api.image.dislikeImage.useMutation({
+    onSuccess: (data) => {
+      updateImages(data);
+    }
+  });
   let [images, setImages] = useState(imagesToDisplay);
-  let [loading, setLoading] = useState<[boolean, boolean?, number?]>([false]);
+  //let [loading, setLoading] = useState<[boolean, boolean?, number?]>([false]);
   let [error, setError] = useState([true, false]);
   let updateImages = (updatedImage: ImageObject) => {
     let updatedImages = images.map((image: ImageObject) =>
@@ -19,23 +27,13 @@ export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
   };
 
   const vote = async (like: boolean, id: number) => {
-    setLoading([like, true, id]);
     setError([like, false]);
-
-    /*let resp = await fetch(
-      `https://challenge.zerodays.dev/api/v1/photos/${id}/${
-        like ? "like" : "dislike"
-      }`,
-      {
-        method: "PATCH",
-      },
-    );
-    if (!resp.ok) setError([like, true]);*/
     let mutation = like ? likeMutation : dislikeMutation;
+    let likedImages = api.image.getLikedImages.useQuery();
+    console.log(likedImages);
+    
     if (mutation.error) setError([like, true]);
     mutation.mutate({ id });
-    if (mutation.data) updateImages(mutation.data);
-    setLoading([like, false, id]);
   };
 
   return (
@@ -57,7 +55,7 @@ export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
               >
                 {error[0] && error[1] ? (
                   <p className="text-red-500">⚠️ Error</p>
-                ) : loading[1] && loading[0] && loading[2] == image.id ? (
+                ) : likeMutation.isLoading ? (
                   <div className="h-6 w-6">
                     <Loading />
                   </div>
@@ -71,7 +69,7 @@ export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
               >
                 {!error[0] && error[1] ? (
                   <p className="text-red-500">⚠️ Error</p>
-                ) : loading[1] && !loading[0] && loading[2] == image.id ? (
+                ) : dislikeMutation.isLoading ? (
                   <div className="h-6 w-6">
                     <Loading />
                   </div>

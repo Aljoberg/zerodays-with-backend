@@ -1,7 +1,6 @@
 import { Suspense } from "react";
-import Loading from "./Loading";
-import ImagesPage from "./ImagesPage";
-import { CreatePost } from "./_components/create-post";
+import Loading from "./components/Loading";
+import ImagesPage from "./components/ImagesPage";
 export default async function Home() {
   return (
     <Suspense
@@ -16,7 +15,7 @@ export default async function Home() {
         </div>
       }
     >
-      <CreatePost />
+      
       <ImagesPage />
     </Suspense>
   );
