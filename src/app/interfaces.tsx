@@ -1,10 +1,5 @@
-interface ImageObject {
-  url: string;
-  id: number;
-  likes: number;
-  dislikes: number;
-  uploadedById: string;
-}
+import { Image as ImageObject } from "@prisma/client";
+
 interface ImageObjectProps {
   image: ImageObject;
   onVote: Function;

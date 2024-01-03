@@ -21,6 +21,9 @@ model Image {
   //dislikes     Int    @default(0)
   uploadedBy   User   @relation(fields: [uploadedById], references: [id])
   uploadedById String
+  likes Int @default(0)
+  dislikes Int @default(0)
+  PostInteraction ImageInteraction[]
 }
 
 // Necessary for Next auth
@@ -51,20 +54,27 @@ model Session {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  name           String?
-  email          String?   @unique
-  emailVerified  DateTime?
-  image          String?
-  accounts       Account[]
-  sessions       Session[]
-  uploadedImages Image[]
+  id              String            @id @default(cuid())
+  name            String?
+  email           String?           @unique
+  emailVerified   DateTime?
+  image           String?
+  accounts        Account[]
+  sessions        Session[]
+  uploadedImages  Image[]
+  ImageInteraction ImageInteraction[]
 }
 
-model Like {
-  id      Int @id
+model ImageInteraction {
+  id      String @id @default(cuid())
+  image    Image  @relation(fields: [imageId], references: [id])
+  imageId Int
+  user    User   @relation(fields: [userId], references: [id])
   userId  String
+  like Boolean
 }
+
+
 
 model VerificationToken {
   identifier String

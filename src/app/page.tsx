@@ -15,7 +15,6 @@ export default async function Home() {
         </div>
       }
     >
-      
       <ImagesPage />
     </Suspense>
   );
