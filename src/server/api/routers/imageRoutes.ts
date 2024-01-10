@@ -31,7 +31,6 @@ export const imageRouter = createTRPCRouter({
       const image = await ctx.db.image.findFirst({
         where: { id: input.id },
       });
-      // throw error if not found (TRPC Error)
       if (!image)
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -49,18 +48,29 @@ export const imageRouter = createTRPCRouter({
         image[input.like ? "likes" : "dislikes"]++;
       } else {
         console.log("exists");
+        console.log(imageInteraction.like, input.like);
+        if(imageInteraction.like == input.like) {
+          await ctx.db.imageInteraction.delete({
+            where: {
+              id: imageInteraction.id,
+            },
+          });
+          image[input.like ? "likes" : "dislikes"]--;
+        }
+        else {
+          await ctx.db.imageInteraction.update({
+            where: {
+              id: imageInteraction.id
+            },
+            data: {
+              like: input.like
+            }
+          });
+          console.log("hi");
+        image[input.like ? "likes" : "dislikes"]++;
+        image[!input.like ? "likes" : "dislikes"]--;
+        }
         
-        await ctx.db.imageInteraction.delete({
-          where: {
-            id: imageInteraction.id,
-          },
-        });
-        if(imageInteraction.like != input.like) await ctx.db.imageInteraction.create({
-          data: {
-            
-          }
-        });
-        image[input.like ? "likes" : "dislikes"]--;
       }
       await ctx.db.image.update({
         where: {
@@ -73,7 +83,4 @@ export const imageRouter = createTRPCRouter({
       });
       return image;
     }),
-  getImageLikeRating: publicProcedure
-    .input(z.object({ imageId: z.string() }))
-    .query(async ({ ctx, input }) => {}),
 });

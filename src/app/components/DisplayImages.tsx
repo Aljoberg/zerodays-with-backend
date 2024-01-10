@@ -25,8 +25,7 @@ export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
     console.log("test test");
     //setError([like, false]);
     likeMutation.mutate({ id, like });
-    //if (likeMutation.error) setError([like, true]);
-    
+    if (likeMutation.error) setError([like, true]);
   };
 
   return (
@@ -35,7 +34,8 @@ export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
         console.log(image.url);
         let totalVotes = image.likes + image.dislikes;
         let likePercentage = totalVotes == 0 ? null : (image.likes / totalVotes) * 100;
-        console.log(likePercentage);
+        let dislikePercentage = totalVotes == 0 ? null : (image.dislikes / totalVotes) * 100;
+        console.log(likePercentage, dislikePercentage);
         return (
           <div key={image.id}>
             <div className="inset-0 overflow-hidden rounded-lg shadow-lg">
@@ -81,7 +81,7 @@ export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
                 className="h-full rounded-bl-full rounded-tl-full bg-green-500"
               ></div>
               <div
-                style={{ width: `${likePercentage ? 100 - likePercentage : 0}%` }}
+                style={{ width: `${dislikePercentage ?? 0}%` }}
                 className="h-full rounded-br-full rounded-tr-full bg-red-500"
               ></div>
             </div>
