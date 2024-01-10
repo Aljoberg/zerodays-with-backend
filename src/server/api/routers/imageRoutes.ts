@@ -6,7 +6,6 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { db } from "~/server/db";
 
 export const imageRouter = createTRPCRouter({
   getImage: publicProcedure.query(({ ctx }) => ctx.db.image.findMany()),
@@ -49,28 +48,26 @@ export const imageRouter = createTRPCRouter({
       } else {
         console.log("exists");
         console.log(imageInteraction.like, input.like);
-        if(imageInteraction.like == input.like) {
+        if (imageInteraction.like == input.like) {
           await ctx.db.imageInteraction.delete({
             where: {
               id: imageInteraction.id,
             },
           });
           image[input.like ? "likes" : "dislikes"]--;
-        }
-        else {
+        } else {
           await ctx.db.imageInteraction.update({
             where: {
-              id: imageInteraction.id
+              id: imageInteraction.id,
             },
             data: {
-              like: input.like
-            }
+              like: input.like,
+            },
           });
           console.log("hi");
-        image[input.like ? "likes" : "dislikes"]++;
-        image[!input.like ? "likes" : "dislikes"]--;
+          image[input.like ? "likes" : "dislikes"]++;
+          image[!input.like ? "likes" : "dislikes"]--;
         }
-        
       }
       await ctx.db.image.update({
         where: {
@@ -83,4 +80,9 @@ export const imageRouter = createTRPCRouter({
       });
       return image;
     }),
+  getLikedImages: protectedProcedure.query(({ ctx }) =>
+    ctx.db.imageInteraction.findMany({
+      where: { userId: ctx.session.user.id },
+    }),
+  ),
 });

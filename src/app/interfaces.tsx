@@ -1,4 +1,4 @@
-import { Image as ImageObject } from "@prisma/client";
+import { Image as ImageObject, ImageInteraction } from "@prisma/client";
 
 interface ImageObjectProps {
   image: ImageObject;
@@ -7,10 +7,12 @@ interface ImageObjectProps {
 }
 interface DisplayImagesProps {
   imagesToDisplay: ImageObject[];
+  interactedImages: ImageInteraction[];
 }
 
 interface FormProps {
   action: (data: FormData) => void;
 }
+
 
 export type { ImageObject, ImageObjectProps, DisplayImagesProps, FormProps };

@@ -5,13 +5,15 @@ import { DisplayImagesProps, ImageObject } from "../interfaces";
 import Loading from "./Loading";
 import { api } from "~/trpc/react";
 
-export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
+export default function DisplayImages() {
   const likeMutation = api.image.interactWithImage.useMutation({
     onSuccess: (data) => {
       updateImages(data);
     },
   });
-  let [images, setImages] = useState(imagesToDisplay);
+  let imagesToDisplay = api.image.getImage.useQuery();
+  let interactedImages = api.image.getLikedImages.useQuery();
+  let [images, setImages] = useState(imagesToDisplay.data());
   //let [loading, setLoading] = useState<[boolean, boolean?, number?]>([false]);
   let [error, setError] = useState([true, false]);
   let updateImages = (updatedImage: ImageObject) => {
@@ -23,18 +25,23 @@ export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
 
   const vote = async (like: boolean, id: number) => {
     console.log("test test");
+    
     //setError([like, false]);
     likeMutation.mutate({ id, like });
     if (likeMutation.error) setError([like, true]);
   };
-
+  console.log(images);
+  
+  console.log("likedornotimages");
   return (
     <div className="container mx-auto grid grid-cols-1 gap-4 p-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
       {images.map((image: ImageObject) => {
         console.log(image.url);
         let totalVotes = image.likes + image.dislikes;
-        let likePercentage = totalVotes == 0 ? null : (image.likes / totalVotes) * 100;
-        let dislikePercentage = totalVotes == 0 ? null : (image.dislikes / totalVotes) * 100;
+        let likePercentage =
+          totalVotes == 0 ? null : (image.likes / totalVotes) * 100;
+        let dislikePercentage =
+          totalVotes == 0 ? null : (image.dislikes / totalVotes) * 100;
         console.log(likePercentage, dislikePercentage);
         return (
           <div key={image.id}>
@@ -47,14 +54,16 @@ export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
               }`}
             >
               {likeMutation.isLoading ? (
-                <div className="h-6 w-6 m-2">
+                <div className="m-2 h-6 w-6">
                   <Loading />
                 </div>
               ) : (
                 <>
                   <span
                     onClick={() => vote(true, image.id)}
-                    className="cursor-pointer select-none rounded p-2 text-green-500 duration-200 hover:bg-gray-700"
+                    className={`cursor-pointer select-none rounded p-2 text-green-500 duration-200 hover:bg-gray-700 ${
+                      likedOrNotImages[image.id] == true ? "bg-green-300" : ""
+                    }`}
                   >
                     {error[0] && error[1] ? (
                       <p className="text-red-500">⚠️ Error</p>
@@ -64,7 +73,9 @@ export default function DisplayImages({ imagesToDisplay }: DisplayImagesProps) {
                   </span>
                   <span
                     onClick={() => vote(false, image.id)}
-                    className="cursor-pointer select-none rounded p-2 text-red-500 duration-200 hover:bg-gray-700"
+                    className={`cursor-pointer select-none rounded p-2 text-red-500 duration-200 hover:bg-gray-700 ${
+                      likedOrNotImages[image.id] == false ? "bg-red-300" : ""
+                    }`}
                   >
                     {!error[0] && error[1] ? (
                       <p className="text-red-500">⚠️ Error</p>
