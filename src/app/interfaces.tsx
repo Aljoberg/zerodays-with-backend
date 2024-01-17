@@ -14,5 +14,4 @@ interface FormProps {
   action: (data: FormData) => void;
 }
 
-
 export type { ImageObject, ImageObjectProps, DisplayImagesProps, FormProps };

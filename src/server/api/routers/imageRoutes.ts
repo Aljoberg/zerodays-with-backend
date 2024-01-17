@@ -35,6 +35,7 @@ export const imageRouter = createTRPCRouter({
           code: "INTERNAL_SERVER_ERROR",
           message: "Image not found",
         });
+      let finalLike = null;
       console.log(imageInteraction);
       if (!imageInteraction) {
         await ctx.db.imageInteraction.create({
@@ -44,6 +45,7 @@ export const imageRouter = createTRPCRouter({
             like: input.like,
           },
         });
+        finalLike = input.like;
         image[input.like ? "likes" : "dislikes"]++;
       } else {
         console.log("exists");
@@ -54,6 +56,9 @@ export const imageRouter = createTRPCRouter({
               id: imageInteraction.id,
             },
           });
+          finalLike = null;
+          console.log(imageInteraction);
+          console.log("deletes");
           image[input.like ? "likes" : "dislikes"]--;
         } else {
           await ctx.db.imageInteraction.update({
@@ -64,6 +69,8 @@ export const imageRouter = createTRPCRouter({
               like: input.like,
             },
           });
+          finalLike = input.like;
+          console.log(imageInteraction);
           console.log("hi");
           image[input.like ? "likes" : "dislikes"]++;
           image[!input.like ? "likes" : "dislikes"]--;
@@ -78,7 +85,9 @@ export const imageRouter = createTRPCRouter({
           dislikes: image.dislikes,
         },
       });
-      return image;
+      console.log("final like");
+      console.log(finalLike);
+      return { image, finalLike };
     }),
   getLikedImages: protectedProcedure.query(({ ctx }) =>
     ctx.db.imageInteraction.findMany({
