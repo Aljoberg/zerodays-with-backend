@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { DisplayImagesProps, ImageObject } from "../interfaces";
+import { ImageObject } from "../interfaces";
 import Loading from "./Loading";
 import { api } from "~/trpc/react";
 import { ImageInteraction } from "@prisma/client";
@@ -86,20 +86,20 @@ function OneImage({
           <>
             <span
               onClick={() => vote(true, image.id)}
-              className="cursor-pointer select-none rounded p-2 text-green-500 duration-200 hover:bg-gray-700 *:text-center"
+              className="cursor-pointer select-none rounded p-2 text-green-500 duration-200 *:text-center hover:bg-gray-700"
             >
               {error[0] && error[1] ? (
                 <p className="text-red-500">⚠️ Error</p>
               ) : (
                 <>
-                  <LikeButton color={like == true ? "green" : "white"}/>
+                  <LikeButton color={like == true ? "green" : "white"} />
                   <p>{image.likes}</p>
                 </>
               )}
             </span>
             <span
               onClick={() => vote(false, image.id)}
-              className="cursor-pointer select-none rounded p-2 text-red-500 duration-200 hover:bg-gray-700 *:text-center"
+              className="cursor-pointer select-none rounded p-2 text-red-500 duration-200 *:text-center hover:bg-gray-700"
             >
               {!error[0] && error[1] ? (
                 <p className="text-red-500">⚠️ Error</p>

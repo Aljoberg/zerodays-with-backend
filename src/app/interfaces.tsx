@@ -5,13 +5,12 @@ interface ImageObjectProps {
   onVote: Function;
   id: number;
 }
-interface DisplayImagesProps {
-  imagesToDisplay: ImageObject[];
-  interactedImages: ImageInteraction[];
-}
 
 interface FormProps {
   action: (data: FormData) => void;
 }
-
-export type { ImageObject, ImageObjectProps, DisplayImagesProps, FormProps };
+interface State {
+  status: string;
+  message?: string;
+}
+export type { ImageObject, ImageObjectProps, FormProps, State };

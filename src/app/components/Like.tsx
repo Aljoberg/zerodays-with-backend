@@ -1,4 +1,10 @@
-export default function LikeButton({ color, dislike }: { color: string, dislike?: boolean }) {
+export default function LikeButton({
+  color,
+  dislike,
+}: {
+  color: string;
+  dislike?: boolean;
+}) {
   return (
     <svg
       fill={color}
