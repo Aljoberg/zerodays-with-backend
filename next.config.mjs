@@ -13,6 +13,7 @@ const config = {
         hostname: "*",
       },
     ],
+    dangerouslyAllowSVG: true
   },
 };
 

@@ -19,11 +19,8 @@ export default async function RootLayout({
   return (
     <TRPCReactProvider cookies={cookies().toString()}>
       <html lang="en">
-        <body className={inter.className}>
-          {children}
-        </body>
+        <body className={inter.className}>{children}</body>
       </html>
     </TRPCReactProvider>
   );
 }
-

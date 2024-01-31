@@ -6,12 +6,18 @@ import Loading from "./Loading";
 import { api } from "~/trpc/react";
 import { ImageInteraction } from "@prisma/client";
 import LikeButton from "./Like";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
-export default function DisplayImages() {
-  let imagesToDisplay = api.image.getImage.useQuery();
-  let interactedImages = api.image.getLikedImages.useQuery();
-  let images = imagesToDisplay.data;
-  let likedImages = interactedImages.data;
+export default function DisplayImages({
+  imagesToDisplay,
+  interactedImages,
+}: {
+  imagesToDisplay: ReturnType<typeof useQuery>;
+  interactedImages: ReturnType<typeof useQuery>;
+}) {
+  let images = imagesToDisplay.data as ImageObject[];
+  let likedImages = interactedImages.data as ImageInteraction[];
 
   console.log(images);
 
@@ -48,6 +54,7 @@ function OneImage({
   let [like, setLike] = useState<boolean | null>(
     imageInteraction?.like || null,
   );
+  let { data: session } = useSession();
   let [image, setImage] = useState(initialImage);
   console.log(image.url);
   let totalVotes = image.likes + image.dislikes;
@@ -64,12 +71,29 @@ function OneImage({
   };
   const likeMutation = api.image.interactWithImage.useMutation({
     onSuccess: (data) => {
-      setImage(data.image);
+      // @ts-ignore
+      session?.user && setImage({ ...data.image, user: session.user });
       setLike(data.finalLike);
     },
   });
   return (
     <div key={image.id}>
+      <p className="mb-4 text-center text-xl font-bold">{image.title}</p>
+      <div className="mb-4 flex items-center justify-center">
+        <Image
+          className="rounded-full mr-4"
+          alt="User image"
+          width={50}
+          height={50}
+          src={
+            image.user.image ||
+            `https://api.dicebear.com/7.x/adventurer/svg?seed=${
+              image.user.name ?? Math.random()
+            }`
+          }
+        />
+        <p className="text-center">{image.user.name}</p>
+      </div>
       <div className="inset-0 overflow-hidden rounded-lg shadow-lg">
         <Image src={image.url} height={300} width={500} alt="Image" />
       </div>

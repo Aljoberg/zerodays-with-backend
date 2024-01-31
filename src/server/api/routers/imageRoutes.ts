@@ -8,14 +8,27 @@ import {
 } from "~/server/api/trpc";
 
 export const imageRouter = createTRPCRouter({
-  getImage: publicProcedure.query(({ ctx }) => ctx.db.image.findMany()),
-
+  getImage: publicProcedure.query(async ({ ctx }) => {
+    let images = await ctx.db.image.findMany();
+    let users = await ctx.db.user.findMany({
+      where: {
+        id: {
+          in: images.map((i) => i.uploadedById),
+        },
+      },
+    });
+    return images.map((i) => ({
+      ...i,
+      user: users.find((ii) => ii.id == i.uploadedById),
+    }));
+  }),
   create: protectedProcedure
-    .input(z.object({ url: z.string() }))
+    .input(z.object({ url: z.string(), title: z.string() }))
     .mutation(async ({ ctx, input }) =>
       ctx.db.image.create({
         data: {
           url: input.url,
+          title: input.title,
           uploadedBy: { connect: { id: ctx.session.user.id } },
         },
       }),

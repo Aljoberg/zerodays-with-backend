@@ -3,7 +3,6 @@ import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -12,24 +11,27 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
-import { Session } from "next-auth";
-import { State } from "../interfaces";
+import { useFormStatus } from "react-dom";
 import { useEffect, useState } from "react";
+import { api } from "~/trpc/react";
+import { useSession } from "next-auth/react";
 export default function Navbar({
-  action: actionn,
-  session,
+  refetch,
 }: {
-  action: (state: State | null, data: FormData) => Promise<State>;
-  session: Session | null;
+  refetch: () => void; // TEMP
 }) {
-  let [state, action] = useFormState(actionn, null);
+  let imageMutation = api.image.create.useMutation();
   let [open, setOpen] = useState(false);
+  let { data: session } = useSession();
   useEffect(() => {
-    if (state?.status == "error") setOpen(true);
-    else if (state?.status == "success") setOpen(false);
-    if (state?.status == "error") alert(`Error: ${state?.message}`); // TODO: spremeni v shadcdn Alert alpa kaj podobnega
-  }, [state]);
+    if (imageMutation.isError) setOpen(true);
+    else if (imageMutation.isSuccess) {
+      setOpen(false);
+      refetch();
+    }
+    if (imageMutation.isError)
+      alert(`Error: ${JSON.stringify(imageMutation.error)}`); // TODO: spremeni v shadcdn Alert alpa kaj podobnega
+  }, [imageMutation.status]);
   return (
     <div className="flex flex-wrap items-center justify-between bg-slate-800 p-5">
       <div className="mr-6 flex flex-shrink-0 items-center text-white">
@@ -68,9 +70,16 @@ export default function Navbar({
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Uploadaj sliko</DialogTitle>
-                <DialogDescription>Spodaj prilepi URL slike</DialogDescription>
               </DialogHeader>
-              <form className="grid gap-4 py-4" action={action}>
+              <form
+                className="grid gap-4 py-4"
+                action={(data) => {
+                  let url = data.get("image") as string;
+                  let title = data.get("title") as string;
+                  if (!url || !title) return;
+                  imageMutation.mutate({ url, title });
+                }}
+              >
                 <Form />
               </form>
             </DialogContent>
@@ -98,6 +107,10 @@ function Form() {
           URL
         </Label>
         <Input name="image" className="col-span-3" />
+        <Label htmlFor="title" className="text-right">
+          Title
+        </Label>
+        <Input name="title" className="col-span-3" />
       </div>
 
       <DialogFooter>

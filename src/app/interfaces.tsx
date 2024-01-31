@@ -1,4 +1,8 @@
-import { Image as ImageObject, ImageInteraction } from "@prisma/client";
+import { Image, User } from "@prisma/client";
+
+interface ImageObject extends Image {
+  user: User;
+}
 
 interface ImageObjectProps {
   image: ImageObject;
