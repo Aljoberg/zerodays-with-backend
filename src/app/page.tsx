@@ -35,6 +35,7 @@ export default function Home() {
         <DisplayImages
           imagesToDisplay={imagesToDisplay}
           interactedImages={interactedImages}
+          refetch={imagesToDisplay.refetch}
         />
       </Suspense>
     </SessionProvider>

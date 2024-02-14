@@ -10,16 +10,22 @@ import {
 export const imageRouter = createTRPCRouter({
   getImage: publicProcedure.query(async ({ ctx }) => {
     let images = await ctx.db.image.findMany();
-    let users = await ctx.db.user.findMany({
+    let users = await ctx.db.user.findMany();
+    let comments = await ctx.db.comment.findMany({
       where: {
-        id: {
-          in: images.map((i) => i.uploadedById),
+        imageId: {
+          in: images.map((i) => i.id),
         },
       },
     });
+    let mappedComments = comments.map((i) => ({
+      ...i,
+      postedBy: users.find((ii) => ii.id == i.userId),
+    }));
     return images.map((i) => ({
       ...i,
       user: users.find((ii) => ii.id == i.uploadedById),
+      comments: mappedComments.filter((ii) => ii.imageId == i.id),
     }));
   }),
   create: protectedProcedure
@@ -107,4 +113,15 @@ export const imageRouter = createTRPCRouter({
       where: { userId: ctx.session.user.id },
     }),
   ),
+  createComment: protectedProcedure
+    .input(z.object({ content: z.string(), imageId: z.number() }))
+    .mutation(({ ctx, input }) =>
+      ctx.db.comment.create({
+        data: {
+          content: input.content,
+          imageId: input.imageId,
+          userId: ctx.session.user.id,
+        },
+      }),
+    ),
 });

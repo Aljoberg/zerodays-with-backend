@@ -8,13 +8,16 @@ import { ImageInteraction } from "@prisma/client";
 import LikeButton from "./Like";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import CommentSection from "./CommentSection";
 
 export default function DisplayImages({
   imagesToDisplay,
   interactedImages,
+  refetch,
 }: {
   imagesToDisplay: ReturnType<typeof useQuery>;
   interactedImages: ReturnType<typeof useQuery>;
+  refetch: ReturnType<typeof useQuery>["refetch"];
 }) {
   let images = imagesToDisplay.data as ImageObject[];
   let likedImages = interactedImages.data as ImageInteraction[];
@@ -37,6 +40,7 @@ export default function DisplayImages({
           imageInteraction={
             likedImages?.find((i) => i.imageId == image.id) ?? null
           }
+          refetch={refetch}
         />
       ))}
     </div>
@@ -46,9 +50,11 @@ export default function DisplayImages({
 function OneImage({
   initialImage,
   imageInteraction,
+  refetch,
 }: {
   initialImage: ImageObject;
   imageInteraction: ImageInteraction | null;
+  refetch: ReturnType<typeof useQuery>["refetch"];
 }) {
   let [error, setError] = useState([true, false]);
   let [like, setLike] = useState<boolean | null>(
@@ -81,7 +87,7 @@ function OneImage({
       <p className="mb-4 text-center text-xl font-bold">{image.title}</p>
       <div className="mb-4 flex items-center justify-center">
         <Image
-          className="rounded-full mr-4"
+          className="mr-4 rounded-full"
           alt="User image"
           width={50}
           height={50}
@@ -147,6 +153,11 @@ function OneImage({
           className="h-full rounded-br-full rounded-tr-full bg-red-500"
         ></div>
       </div>
+      <CommentSection
+        imageId={image.id}
+        comments={image.comments}
+        refetch={refetch}
+      />
     </div>
   );
 }

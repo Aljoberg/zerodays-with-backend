@@ -1,7 +1,12 @@
-import { Image, User } from "@prisma/client";
+import { Comment, Image, User } from "@prisma/client";
 
 interface ImageObject extends Image {
   user: User;
+  comments: ImageComment[];
+}
+
+interface ImageComment extends Comment {
+  postedBy: User;
 }
 
 interface ImageObjectProps {
@@ -17,4 +22,4 @@ interface State {
   status: string;
   message?: string;
 }
-export type { ImageObject, ImageObjectProps, FormProps, State };
+export type { ImageObject, ImageObjectProps, FormProps, State, ImageComment };

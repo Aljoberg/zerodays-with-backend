@@ -15,10 +15,11 @@ import { useFormStatus } from "react-dom";
 import { useEffect, useState } from "react";
 import { api } from "~/trpc/react";
 import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
 export default function Navbar({
   refetch,
 }: {
-  refetch: () => void; // TEMP
+  refetch: (ReturnType<typeof useQuery>)["refetch"];
 }) {
   let imageMutation = api.image.create.useMutation();
   let [open, setOpen] = useState(false);
@@ -115,7 +116,7 @@ function Form() {
 
       <DialogFooter>
         <Button type="submit" disabled={pending}>
-          {pending ? "Loading..." : "Save changes"}
+          {pending ? "Loading..." : "Post image"}
         </Button>
       </DialogFooter>
     </>
