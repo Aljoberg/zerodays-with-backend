@@ -114,14 +114,29 @@ export const imageRouter = createTRPCRouter({
     }),
   ),
   createComment: protectedProcedure
-    .input(z.object({ content: z.string(), imageId: z.number() }))
-    .mutation(({ ctx, input }) =>
-      ctx.db.comment.create({
-        data: {
-          content: input.content,
-          imageId: input.imageId,
-          userId: ctx.session.user.id,
-        },
+    .input(
+      z.object({
+        content: z.string(),
+        imageId: z.number(),
+        replyId: z.optional(z.string()),
       }),
+    )
+    .mutation(({ ctx, input }) =>
+      input.replyId
+        ? ctx.db.comment.create({
+            data: {
+              parentId: input.replyId,
+              content: input.content,
+              imageId: input.imageId,
+              userId: ctx.session.user.id,
+            },
+          })
+        : ctx.db.comment.create({
+            data: {
+              content: input.content,
+              imageId: input.imageId,
+              userId: ctx.session.user.id,
+            },
+          }),
     ),
 });

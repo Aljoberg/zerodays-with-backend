@@ -65,6 +65,7 @@ model User {
   uploadedImages   Image[]
   ImageInteraction ImageInteraction[]
   comments         Comment[]
+  emailVerified Boolean?
 }
 
 model ImageInteraction {
@@ -83,9 +84,7 @@ model Comment {
   user         User     @relation(fields: [userId], references: [id])
   userId       String
   content      String
-  replyId      String?  @unique
-  reply        Comment? @relation("reply", fields: [replyId], references: [id])
-  replyParents Comment? @relation("reply")
+  parentId String?
 }
 
 model VerificationToken {
